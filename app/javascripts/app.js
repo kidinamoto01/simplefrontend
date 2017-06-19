@@ -84,7 +84,6 @@ window.App = {
         });
     },
     getChairperson: function() {
-        var _chair = accounts[1];
         MyVote.deployed().then(function(instance) {
             console.log("output");
             return instance.getChairman.call();
@@ -97,13 +96,24 @@ window.App = {
         });
     },
     voteOnDocument:function(){
-        var _chair = accounts[1];
+        var _from = document.getElementById("from").value;
         MyVote.deployed().then(function(instance) {
             console.log("output");
-            return instance.getChairman.call();
+            return instance.vote({from:_from});
         }).then(function(result) {
-            document.getElementById("chair").innerHTML = result;
             console.log(result);
+            App.basicInfoUpdate();
+        }).catch(function(err) {
+            console.error(err);
+        });
+    },
+    getResult:function(){
+        MyVote.deployed().then(function(instance) {
+            console.log("output");
+            return instance.isApproved.call();
+        }).then(function(result) {
+            console.log(result);
+            document.getElementById("result").innerHTML = result;
             App.basicInfoUpdate();
         }).catch(function(err) {
             console.error(err);
