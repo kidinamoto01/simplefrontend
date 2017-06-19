@@ -8,10 +8,10 @@ import { default as Web3} from 'web3';
 import { default as contract } from 'truffle-contract'
 
 // Import our contract artifacts and turn them into usable abstractions.
-import myWallet_artifact from '../../build/contracts/MyWallet.json'
+import myVote_artifact from '../../build/contracts/MyVote.json'
 
 // MetaCoin is our usable abstraction, which we'll use through the code below.
-var MyWallet = contract(myWallet_artifact);
+var MyVote = contract(myVote_artifact);
 
 // The following code is simple to show off interacting with your contracts.
 // As your needs grow you will likely need to change its form and structure.
@@ -24,7 +24,7 @@ window.App = {
         var self = this;
 
         // Bootstrap the MetaCoin abstraction for Use.
-        MyWallet.setProvider(web3.currentProvider);
+        MyVote.setProvider(web3.currentProvider);
 
         // Get the initial account balance so it can be displayed.
         web3.eth.getAccounts(function(err, accs) {
@@ -47,30 +47,35 @@ window.App = {
         });
     },
 
+//更新Sum,Count值
     basicInfoUpdate: function() {
-        MyWallet.deployed().then(function(instance) {
-            document.getElementById("walletAddress").innerHTML = instance.address;
-            document.getElementById("walletEther").innerHTML = web3.fromWei(web3.eth.getBalance(instance.address).toNumber(), "ether");
+        MyVote.deployed().then(function(instance) {
+            document.getElementById("contractAddress").innerHTML = instance.address;
+            //document.getElementById("contractSum").innerHTML = instance.getSum();
+            instance.getSum({from: accounts[0]}).then(function(val){
+                document.getElementById("contractSum").innerHTML = val;
+                instance.getCount.call().then(function(count){
+                    document.getElementById("contractCount").innerHTML = count;
+                })
+            })
         })
     },
 
-    submitEtherToWallet: function() {
-        MyWallet.deployed().then(function(instance) {
-
-            return instance.sendTransaction({from: account, to: instance.address, value: web3.toWei(5, "ether")});
-
-        }).then(function(result) {
-            App.basicInfoUpdate();
-        });
-    },
-
-    submitTransaction: function() {
+    // submitEtherToWallet: function() {
+    //     MyWallet.deployed().then(function(instance) {
+    //
+    //         return instance.sendTransaction({from: account, to: instance.address, value: web3.toWei(5, "ether")});
+    //
+    //     }).then(function(result) {
+    //         App.basicInfoUpdate();
+    //     });
+    // },
+    //
+    giveRightToVote: function() {
         var _to = document.getElementById("to").value;
-        var _amount = parseInt(document.getElementById("amount").value);
-        var _reason = document.getElementById("reason").value;
-
-        MyWallet.deployed().then(function(instance) {
-            return instance.spendMoneyOn(_to, web3.toWei(_amount, 'finney'), _reason, {from:accounts[0]});
+        MyVote.deployed().then(function(instance) {
+            console.log("output");
+            return instance.giveRightToVote(_to,{from:accounts[0]});
         }).then(function(result) {
             console.log(result);
             App.basicInfoUpdate();
@@ -78,10 +83,36 @@ window.App = {
             console.error(err);
         });
     },
-
-    sendCoin: function() {
-        var self = this;
+    getChairperson: function() {
+        var _chair = accounts[1];
+        MyVote.deployed().then(function(instance) {
+            console.log("output");
+            return instance.getChairman.call();
+        }).then(function(result) {
+            document.getElementById("chair").innerHTML = result;
+            console.log(result);
+            App.basicInfoUpdate();
+        }).catch(function(err) {
+            console.error(err);
+        });
+    },
+    voteOnDocument:function(){
+        var _chair = accounts[1];
+        MyVote.deployed().then(function(instance) {
+            console.log("output");
+            return instance.getChairman.call();
+        }).then(function(result) {
+            document.getElementById("chair").innerHTML = result;
+            console.log(result);
+            App.basicInfoUpdate();
+        }).catch(function(err) {
+            console.error(err);
+        });
     }
+    //
+    // sendCoin: function() {
+    //     var self = this;
+    // }
 };
 
 window.addEventListener('load', function() {

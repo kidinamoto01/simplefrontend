@@ -1,5 +1,5 @@
-var myWallet = artifacts.require("./MyWallet.sol");
+var myVote = artifacts.require("./MyVote.sol");
 
 module.exports = function(deployer) {
-    deployer.deploy(myWallet);
+    deployer.deploy(myVote);
 };

@@ -43,6 +43,10 @@ contract MyVote {
         }
     }
 
+    function getChairman() constant returns(address){
+        return chairperson;
+    }
+
     function getCount() constant returns(uint){
         return voteCount;
     }
